@@ -9,6 +9,6 @@ Configuration files are:
 * `etc/private-mq.cfg` for celery config (optional);
 * `etc/private-db.cfg` for db config (optional).
 
-See also `etc/examle.*.cfg` files.
+See also `etc/example.*.cfg` files.
 
 [1]: http://docs.python.org/2/library/configparser.html
