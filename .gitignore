@@ -1,0 +1,13 @@
+private-*.cfg
+venv/*
+wheelhouse/*
+static/*
+data/*
+node_modules
+*_debug.py
+*.pyc
+*.log
+*~
+*.*save
+*.nja
+.*project
