@@ -108,6 +108,12 @@ if CONF.has_section('celery'):
         pass
     BROKER_URL = CONF.get('celery', 'broker')
 
+if CONF.has_section('celery-queues'):
+    CELERY_ROUTES = {}
+    for queue, tasks in CONF.items('celery-queues'):
+        for task in tasks.split():
+            CELERY_ROUTES[task] = {'queue': queue}
+
 if CONF.has_section('pyro'):
     PYRO_HOST = CONF.get('pyro', 'host')
     PYRO_PORT = CONF.getint('pyro', 'port')
