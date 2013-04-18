@@ -1,4 +1,3 @@
-
 import os.path
 try:
     import configparser
@@ -94,8 +93,6 @@ if CONF.has_section('admins'):
 if CONF.has_option('lib', 'nodejs'):
     NODEJS_BINARY = os.path.abspath(
             os.path.join(*CONF.get('lib', 'nodejs').split('/')))
-else:
-    NODEJS_BINARY = 'node'
 
 if CONF.has_option('lib', 'lessc'):
     PIPELINE_LESS_BINARY = ' '.join((NODEJS_BINARY, os.path.abspath(
