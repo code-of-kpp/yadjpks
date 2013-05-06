@@ -88,7 +88,7 @@ if CONF.has_section('email'):
 
 # admins:
 if CONF.has_section('admins'):
-    ADMINS = tuple(((a[0].title(), a[1]) for a in CONF.items('admins')))
+    ADMINS = tuple(((a[1], a[0]) for a in CONF.items('admins')))
 
 # libraries:
 if CONF.has_option('lib', 'nodejs'):
