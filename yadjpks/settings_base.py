@@ -6,22 +6,7 @@ DATABASES = {'default': {}}
 
 #SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
-INSTALLED_APPS = (
-    'django.contrib.contenttypes',
-    'django.contrib.auth',
-    'django.contrib.staticfiles',
-    'django.contrib.sessions',
-
-    'admin_tools_html5_fix',
-    'admin_tools',
-    'admin_tools.theming',
-    'admin_tools.menu',
-    'admin_tools.dashboard',
-
-    'django.contrib.admin',
-    'django.contrib.admindocs',
-    'django.contrib.messages',
-)
+INSTALLED_APPS = tuple()
 
 STATIC_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/static/admin/'
@@ -31,12 +16,10 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
-)
+]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',

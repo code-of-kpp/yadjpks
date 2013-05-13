@@ -1,0 +1,14 @@
+django.contrib.contenttypes
+django.contrib.auth
+django.contrib.staticfiles
+django.contrib.sessions
+
+admin_tools_html5_fix
+admin_tools
+admin_tools.theming
+admin_tools.menu
+admin_tools.dashboard
+
+django.contrib.admin
+django.contrib.admindocs
+django.contrib.messages

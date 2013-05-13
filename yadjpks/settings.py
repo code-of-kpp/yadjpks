@@ -1,20 +1,27 @@
 import os.path
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser  # lint:ok
+
+import six
 
 from .settings_base import *
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 PACKAGE_ROOT = os.path.abspath(os.path.join(PROJECT_ROOT, '..'))
 
-CONF = configparser.SafeConfigParser()
+CONF = six.moves.configparser.SafeConfigParser()
 CONF.read((os.path.join(PACKAGE_ROOT, 'etc', 'runtime.cfg'),
           os.path.join(PACKAGE_ROOT, 'etc', 'private-runtime.cfg'),
           os.path.join(PACKAGE_ROOT, 'etc', 'private-mq.cfg'),
           os.path.join(PACKAGE_ROOT, 'etc', 'private-db.cfg'),
           ))
+
+get_default = lambda conf, sect, opt, val: conf.get(sect, opt) \
+    if conf.has_option(sect, opt) else val
+get_float_default = lambda conf, sect, opt, val: conf.getfloat(sect, opt) \
+    if conf.has_option(sect, opt) else val
+get_int_default = lambda conf, sect, opt, val: conf.getint(sect, opt) \
+    if conf.has_option(sect, opt) else val
+get_bool_default = lambda conf, sect, opt, val: conf.getboolean(sect, opt) \
+    if conf.has_option(sect, opt) else val
 
 # i18n and timezone:
 TIME_ZONE = CONF.get('i18n', 'time zone')
@@ -35,6 +42,7 @@ for key in ('js', 'css', 'font', 'img'):
     path = os.path.join(PACKAGE_ROOT, 'data', key)
     if os.path.exists(path):
         STATICFILES_DIRS.append(path)
+STATICFILES_DIRS = tuple(STATICFILES_DIRS)
 
 # caches:
 CACHES = {}
@@ -65,7 +73,7 @@ for s in (s
     dbsection = s.replace('database-', '')
     DATABASES[dbsection] = {}
     engine = CONF.get(s, 'engine')
-    DATABASES[dbsection]['ENGINE'] = engines.get(engine, engine)
+    DATABASES[dbsection]['ENGINE'] = engines.get(engine.lower(), engine)
     for param in ('HOST', 'PORT', 'NAME',
                   'USER', 'PASSWORD',
                  ):
@@ -108,6 +116,16 @@ if CONF.has_section('celery'):
         pass
     BROKER_URL = CONF.get('celery', 'broker')
 
+    if BROKER_URL == 'django://':
+        INSTALLED_APPS += ('kombu.transport.django', )
+
+    CELERY_IGNORE_RESULT = get_bool_default(CONF,
+        'celery', 'ignore result', True)
+
+    CELERY_STORE_ERRORS_EVEN_IF_IGNORED = get_bool_default(CONF,
+        'celery', 'store errors even if ignored', True)
+
+
 if CONF.has_section('celery-queues'):
     CELERY_ROUTES = {}
     for queue, tasks in CONF.items('celery-queues'):
@@ -125,18 +143,41 @@ ALLOWED_HOSTS = ('127.0.0.1', 'localhost', ) if \
 
 SECRET_KEY = CONF.get('security', 'secret key')
 
+# apps:
+for name in ('private-apps.txt', 'apps.txt'):
+    apps_file = os.path.join(PACKAGE_ROOT, 'etc', 'apps.txt')
+    if os.path.exists(apps_file):
+        with open(apps_file) as f:
+            INSTALLED_APPS = tuple((
+                line for line in
+                        six.moves.map(lambda s: s.strip(), f)
+                    if line and not line.startswith('#')
+            )) + INSTALLED_APPS
+
 # other:
-MIDDLEWARE_CLASSES += (
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+
+if 'django.contrib.sessions' in INSTALLED_APPS:
+    MIDDLEWARE_CLASSES.append(
+        'django.contrib.sessions.middleware.SessionMiddleware')
+
+if 'django.contrib.auth' in INSTALLED_APPS:
+    MIDDLEWARE_CLASSES.append(
+        'django.contrib.auth.middleware.AuthenticationMiddleware')
+
+if 'django.contrib.messages' in INSTALLED_APPS:
+    MIDDLEWARE_CLASSES.append(
+        'django.contrib.messages.middleware.MessageMiddleware')
+
+# Uncomment the next line for simple clickjacking protection:
+# MIDDLEWARE_CLASSES.append(
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware')
+
+MIDDLEWARE_CLASSES = tuple(MIDDLEWARE_CLASSES)
 
 ROOT_URLCONF = 'yadjpks.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'yadjpks.wsgi.application'
-
-#INSTALLED_APPS = ('yourapp', ) + INSTALLED_APPS
 
 if DEBUG:
     from .settings_debug import *
