@@ -10,8 +10,11 @@ PACKAGE_ROOT = os.path.abspath(os.path.join(PROJECT_ROOT, '..'))
 CONF = six.moves.configparser.SafeConfigParser()
 CONF.read((os.path.join(PACKAGE_ROOT, 'etc', 'runtime.cfg'),
           os.path.join(PACKAGE_ROOT, 'etc', 'private-runtime.cfg'),
+          os.path.join(PACKAGE_ROOT, 'etc', 'mq.cfg'),
           os.path.join(PACKAGE_ROOT, 'etc', 'private-mq.cfg'),
           os.path.join(PACKAGE_ROOT, 'etc', 'private-db.cfg'),
+          os.path.join(PACKAGE_ROOT, 'etc', 'urls.cfg'),
+          os.path.join(PACKAGE_ROOT, 'etc', 'private-urls.cfg'),
           ))
 
 get_default = lambda conf, sect, opt, val: conf.get(sect, opt) \
@@ -154,6 +157,13 @@ for name in ('private-apps.txt', 'apps.txt'):
                     if line and not line.startswith('#')
             )) + INSTALLED_APPS
 
+
+# top-level urls (assume urls module in every app here):
+if CONF.has_section('top level urls'):
+    TOP_LEVEL_URLS = tuple(((a[0], a[1])
+        for a in CONF.items('top level urls')))
+
+
 # other:
 
 if 'django.contrib.sessions' in INSTALLED_APPS:
@@ -182,7 +192,7 @@ WSGI_APPLICATION = 'yadjpks.wsgi.application'
 if DEBUG:
     from .settings_debug import *
     try:
-        import django_extensions
+        import django_extensions  # lint:ok
         INSTALLED_APPS = INSTALLED_APPS + ('django_extensions', )
     except ImportError:
         pass
