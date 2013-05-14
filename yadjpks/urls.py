@@ -25,7 +25,7 @@ if hasattr(settings, 'TOP_LEVEL_URLS'):
     for app, path in settings.TOP_LEVEL_URLS:
         urlpatterns_list.append(
                 url(path, include(app +
-                    ('' if app.endswith('urls') else 'urls')))
+                    ('' if app.endswith('urls') else '.urls')))
             )
 
 urlpatterns = patterns('', *urlpatterns_list)

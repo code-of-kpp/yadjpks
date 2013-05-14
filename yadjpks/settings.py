@@ -148,7 +148,7 @@ SECRET_KEY = CONF.get('security', 'secret key')
 
 # apps:
 for name in ('private-apps.txt', 'apps.txt'):
-    apps_file = os.path.join(PACKAGE_ROOT, 'etc', 'apps.txt')
+    apps_file = os.path.join(PACKAGE_ROOT, 'etc', name)
     if os.path.exists(apps_file):
         with open(apps_file) as f:
             INSTALLED_APPS = tuple((
